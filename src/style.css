@@ -1,0 +1,387 @@
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  --bg: #0a0e1a;
+  --headline-color: #ffffff;
+  --bubble-bg: rgba(10, 14, 30, 0.94);
+  --bubble-border: rgba(255, 255, 255, 0.1);
+  --bubble-text: #e0e0e0;
+  --hint-bg: rgba(255, 255, 255, 0.08);
+  --hint-text: #888;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  font-family: 'Inter', sans-serif;
+  background: var(--bg);
+  background-color: #0a0e1a;
+  cursor: default;
+}
+
+#stage {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+}
+
+/* ── Headline Words ── */
+.headline-word {
+  color: var(--headline-color);
+  opacity: 0.12;
+  letter-spacing: -2px;
+  z-index: 0;
+}
+
+/* ── Main Canvas ── */
+.main-canvas {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* ── Moon ── */
+.moon {
+  position: fixed;
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  overflow: hidden;
+  z-index: 2;
+  cursor: grab;
+  pointer-events: auto;
+  user-select: none;
+  box-shadow:
+    0 0 20px rgba(200, 195, 185, 0.2),
+    0 0 60px rgba(200, 195, 185, 0.08);
+  transition: box-shadow 0.3s;
+}
+.moon-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+  display: block;
+}
+.moon:hover {
+  box-shadow:
+    0 0 30px rgba(220, 215, 205, 0.3),
+    0 0 80px rgba(200, 195, 185, 0.12);
+}
+.moon--spinning {
+  animation: moon-spin 2.5s cubic-bezier(0.2, 0.8, 0.3, 1) forwards;
+}
+@keyframes moon-spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(-1080deg); }
+}
+
+/* ── Quote Bubble ── */
+.quote-bubble {
+  z-index: 2;
+  background: var(--bubble-bg);
+  border: 1px solid var(--bubble-border);
+  border-radius: 12px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
+  transition: opacity 0.4s ease-out;
+}
+
+.quote-line {
+  font: 400 15px/22px 'Inter', sans-serif;
+  color: var(--bubble-text);
+}
+
+/* ── Hint Pill ── */
+.hint-pill {
+  position: fixed;
+  bottom: 32px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--hint-bg);
+  color: var(--hint-text);
+  font: 500 13px/1 'Inter', sans-serif;
+  padding: 8px 20px;
+  border-radius: 100px;
+  z-index: 10;
+  opacity: 1;
+  transition: opacity 0.6s ease-out;
+  pointer-events: none;
+  user-select: none;
+}
+
+.hint-pill--hidden {
+  opacity: 0;
+}
+
+
+
+/* ── Typing Indicator ── */
+.typing-indicator {
+  position: fixed;
+  bottom: 72px;
+  left: 24px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(30, 30, 30, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  padding: 8px 14px;
+  z-index: 20;
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  pointer-events: none;
+}
+.typing-dot {
+  font-size: 10px;
+  animation: pulse-dot 1.4s ease-in-out infinite;
+}
+.typing-text {
+  font: 400 13px/1 'Inter', sans-serif;
+  color: #999;
+  letter-spacing: 0.01em;
+}
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+/* ── Sprint Countdown ── */
+.sprint-countdown {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  text-align: right;
+  z-index: 15;
+  pointer-events: none;
+  user-select: none;
+}
+.countdown-label {
+  font: 700 10px/1 'Inter', sans-serif;
+  color: #555;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+.countdown-time {
+  font: 700 22px/1 'Inter', monospace;
+  color: #888;
+  letter-spacing: 0.05em;
+  font-variant-numeric: tabular-nums;
+  transition: color 0.3s ease;
+}
+
+/* ── Toast Notifications ── */
+.toast-container {
+  position: fixed;
+  top: 80px;
+  right: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  z-index: 25;
+  pointer-events: none;
+}
+.toast-notification {
+  background: rgba(30, 30, 30, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  padding: 10px 16px;
+  font: 400 13px/1.4 'Inter', sans-serif;
+  color: #ccc;
+  max-width: 340px;
+  opacity: 0;
+  transform: translateX(120%);
+  transition: opacity 0.4s ease, transform 0.4s ease;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+}
+
+
+
+
+/* ── UFO ── */
+.ufo {
+  position: fixed;
+  z-index: 1;
+  pointer-events: none;
+  width: 80px;
+  height: 48px;
+}
+.ufo-dome {
+  position: absolute;
+  left: 18px;
+  top: -12px;
+  width: 44px;
+  height: 22px;
+  border-radius: 50% 50% 0 0;
+  background: radial-gradient(ellipse at 40% 40%, rgba(120,200,140,0.85), rgba(40,90,60,0.7));
+  box-shadow: 0 0 12px rgba(60,200,100,0.4);
+}
+.ufo-body {
+  position: absolute;
+  top: 6px;
+  width: 80px;
+  height: 22px;
+  border-radius: 50%;
+  background: linear-gradient(to bottom, #556, #333);
+  box-shadow: 0 3px 8px rgba(0,0,0,0.6), 0 0 10px rgba(60,200,100,0.15);
+}
+.ufo-lights {
+  position: absolute;
+  top: 12px;
+  left: 10px;
+  display: flex;
+  gap: 10px;
+}
+.ufo-lights span {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #e00;
+  animation: ufo-blink 0.5s alternate infinite;
+}
+.ufo-lights span:nth-child(2) { animation-delay: 0.1s; background: #d90; }
+.ufo-lights span:nth-child(3) { animation-delay: 0.2s; background: #0b0; }
+.ufo-lights span:nth-child(4) { animation-delay: 0.3s; background: #e00; }
+.ufo-lights span:nth-child(5) { animation-delay: 0.4s; background: #d90; }
+
+/* Pastel variant */
+.ufo--pastel .ufo-dome {
+  background: radial-gradient(ellipse at 40% 40%, rgba(180,220,255,0.9), rgba(100,160,220,0.6));
+  box-shadow: 0 0 10px rgba(150,200,255,0.3);
+}
+.ufo--pastel .ufo-body {
+  background: linear-gradient(to bottom, #889, #556);
+  box-shadow: 0 3px 8px rgba(0,0,0,0.5), 0 0 12px rgba(100,180,255,0.15);
+}
+.ufo--pastel .ufo-lights span { background: #ff0; }
+.ufo--pastel .ufo-lights span:nth-child(2) { background: #f80; }
+.ufo--pastel .ufo-lights span:nth-child(3) { background: #0ff; }
+.ufo--pastel .ufo-lights span:nth-child(4) { background: #0f0; }
+.ufo--pastel .ufo-lights span:nth-child(5) { background: #f0f; }
+@keyframes ufo-blink {
+  0% { opacity: 0.3; }
+  100% { opacity: 1; }
+}
+.ufo-beam {
+  position: absolute;
+  top: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 28px solid transparent;
+  border-right: 28px solid transparent;
+  border-top: 80px solid rgba(180,220,255,0.15);
+}
+.ufo-cow {
+  position: absolute;
+  top: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 36px;
+  line-height: 1;
+  text-align: center;
+}
+@media (max-width: 767px) {
+  .ufo-cow {
+    font-size: 58px;
+    top: 74px;
+  }
+}
+
+/* ── Shooting Stars ── */
+.shooting-star {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 1.5px;
+  background: linear-gradient(
+    to right,
+    transparent 0%,
+    rgba(200, 210, 255, 0.5) 50%,
+    rgba(255, 255, 255, 0.9) 100%
+  );
+  border-radius: 1px;
+  opacity: 0;
+  transform-origin: center center;
+  will-change: transform, opacity;
+}
+
+/* ── Mobile Optimizations ── */
+@media (max-width: 768px) {
+  /* Prevent rubber-banding / pull-to-refresh on touch */
+  html, body {
+    overscroll-behavior: none;
+  }
+  /* Let #stage capture touch for keyword scatter, prevent scroll */
+  #stage {
+    touch-action: none;
+  }
+
+  /* Smaller headline on mobile */
+  .headline-word {
+    letter-spacing: -1px;
+  }
+
+
+
+  /* Shrink quote bubble */
+  .quote-bubble {
+    max-width: 260px;
+    border-radius: 8px;
+  }
+  .quote-line {
+    font-size: 13px;
+    line-height: 18px;
+  }
+
+  /* Hint pill */
+  .hint-pill {
+    bottom: 20px;
+    font-size: 12px;
+    padding: 6px 16px;
+  }
+
+  /* Typing indicator – bottom-left, smaller */
+  .typing-indicator {
+    bottom: 48px;
+    left: 12px;
+    padding: 6px 10px;
+    gap: 6px;
+  }
+  .typing-text {
+    font-size: 11px;
+  }
+
+  /* Sprint countdown – bottom-right, smaller */
+  .sprint-countdown {
+    bottom: 16px;
+    right: 12px;
+  }
+  .countdown-label {
+    font-size: 8px;
+  }
+  .countdown-time {
+    font-size: 16px;
+  }
+
+  /* Toast notifications – narrower, top-right */
+  .toast-container {
+    top: 56px;
+    right: 8px;
+  }
+  .toast-notification {
+    max-width: 240px;
+    font-size: 11px;
+    padding: 8px 12px;
+  }
+
+}
