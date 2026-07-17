@@ -4,7 +4,7 @@ Source-of-record for [nagops.com](https://nagops.com), the IS IT DONE YET page.
 
 ## State (2026-07-17)
 
-- The live site is a Vite build deployed to Cloudflare Pages. **Its source is not in this repo yet** — drop the Vite project in at the root (package.json, src/, etc.).
+- The live site is a Vite build deployed to Cloudflare Pages. Its source lives at the root of this repo (Vite + TypeScript, `src/`).
 - `public/` already holds the hardening files. Vite copies `public/` into `dist/` verbatim, so they ship automatically once the source lands here:
   - `_headers` — CSP, HSTS, frame/permissions/nosniff policies. Live site currently has none of these.
   - `.well-known/security.txt` — real file; the live SPA catch-all currently fakes a 200 for this path.
@@ -18,7 +18,7 @@ Reviewed the deployed 67 KB JS bundle and index.html directly. Findings, all low
 - **Two external origins, both in the HTML head:** Google Fonts (`fonts.googleapis.com` + `fonts.gstatic.com`). This is the one real finding — a privacy leak (visitor IP to Google) and a third-party dependency. The staged CSP allowlists them so nothing breaks on deploy; **self-hosting the fonts is the follow-up** to reach zero-third-party, and is good material for the securing-nagops post.
 - Third parties total: Google Fonts + the Cloudflare Insights beacon. Both allowlisted in `_headers`; both removable (self-host fonts; toggle off Web Analytics) if going zero-third-party.
 
-## When the source lands
+## Build & verify
 
 ```bash
 npm ci
