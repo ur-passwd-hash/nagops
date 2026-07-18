@@ -194,7 +194,16 @@ export class CanvasRenderer {
       const dw = iw * s
       const dh = ih * s
       ctx.drawImage(this.bgImg, (this.vw - dw) / 2, (this.vh - dh) / 2, dw, dh)
-      ctx.fillStyle = 'rgba(10, 14, 26, 0.5)'
+      ctx.fillStyle = 'rgba(10, 14, 26, 0.6)'
+      ctx.fillRect(0, 0, this.vw, this.vh)
+      // Extra kill for the image's bright bottom-right corner
+      const corner = ctx.createRadialGradient(
+        this.vw, this.vh, 0,
+        this.vw, this.vh, Math.max(this.vw, this.vh) * 0.65,
+      )
+      corner.addColorStop(0, 'rgba(10, 14, 26, 0.75)')
+      corner.addColorStop(1, 'rgba(10, 14, 26, 0)')
+      ctx.fillStyle = corner
       ctx.fillRect(0, 0, this.vw, this.vh)
     }
 
@@ -252,8 +261,6 @@ export class CanvasRenderer {
     moonX?: number, moonY?: number,
   ): void {
     const MOON_REPULSION_RADIUS = 220
-    const MOON_REPULSION_STRENGTH = 1600
-    const MOON_MAX_FORCE = 22
 
     for (const kw of this.keywords) {
       const cx = kw.x + kw.width / 2
@@ -261,23 +268,25 @@ export class CanvasRenderer {
 
       let pushed = false
 
-      // Moon centrifugal field — radial push + tangential orbital swirl.
-      // Must set `pushed`, or the rest-spring cancels the field every frame
-      // and words sit still instead of warping around the moon.
+      // Moon orbital field: words inside the field are steered onto a ring
+      // and driven around it clockwise — an orbit, not a shove. The spring
+      // is suppressed while orbiting (else it cancels the field each frame).
       if (moonX !== undefined && moonY !== undefined) {
         const dx = cx - moonX
         const dy = cy - moonY
         const dist = Math.sqrt(dx * dx + dy * dy)
         if (dist < MOON_REPULSION_RADIUS && dist > 1) {
-          const force = Math.min(MOON_REPULSION_STRENGTH / (dist * dist), MOON_MAX_FORCE)
           const nx = dx / dist
           const ny = dy / dist
-          // Radial outward push
-          kw.vx += nx * force
-          kw.vy += ny * force
-          // Tangential force (perpendicular, clockwise) — 40% of radial
-          kw.vx += -ny * force * 0.4
-          kw.vy += nx * force * 0.4
+          // Steer toward the orbit ring: outward if too close, inward if far
+          const MOON_RING = 145
+          const ringPull = (MOON_RING - dist) * 0.02
+          kw.vx += nx * ringPull
+          kw.vy += ny * ringPull
+          // Constant clockwise tangential drive — this is the revolution
+          const TANGENTIAL_DRIVE = 0.55
+          kw.vx += -ny * TANGENTIAL_DRIVE
+          kw.vy += nx * TANGENTIAL_DRIVE
           pushed = true
         }
       }
