@@ -272,7 +272,7 @@ html, body {
 }
 .ufo-svg {
   display: block;
-  filter: drop-shadow(0 0 10px rgba(80, 230, 150, 0.35)) drop-shadow(0 4px 6px rgba(0, 0, 0, 0.5));
+  filter: drop-shadow(0 0 12px rgba(125, 243, 255, 0.28)) drop-shadow(0 4px 8px rgba(0, 0, 0, 0.7));
   animation: ufo-bob 2.4s ease-in-out infinite;
 }
 .ufo-svg .rl {
@@ -283,12 +283,12 @@ html, body {
 .ufo-svg .rl:nth-of-type(4) { animation-delay: 0.3s; }
 .ufo-svg .rl:nth-of-type(5) { animation-delay: 0.4s; }
 
-/* Pastel variant — same artwork, shifted spectrum */
+/* Variant — same obsidian artwork, violet accent instead of cyan */
 .ufo--pastel .ufo-svg {
-  filter: hue-rotate(150deg) drop-shadow(0 0 10px rgba(120, 180, 255, 0.35)) drop-shadow(0 4px 6px rgba(0, 0, 0, 0.5));
+  filter: hue-rotate(70deg) drop-shadow(0 0 12px rgba(190, 140, 255, 0.25)) drop-shadow(0 4px 8px rgba(0, 0, 0, 0.7));
 }
 .ufo--pastel .ufo-beam {
-  filter: hue-rotate(150deg);
+  filter: hue-rotate(70deg);
 }
 @keyframes ufo-blink {
   0% { opacity: 0.25; }
@@ -308,9 +308,9 @@ html, body {
   clip-path: polygon(36% 0, 64% 0, 100% 100%, 0 100%);
   background: linear-gradient(
     to bottom,
-    rgba(140, 255, 200, 0.5),
-    rgba(140, 255, 200, 0.18) 60%,
-    rgba(140, 255, 200, 0.03)
+    rgba(125, 243, 255, 0.45),
+    rgba(125, 243, 255, 0.15) 60%,
+    rgba(125, 243, 255, 0.02)
   );
   animation: beam-pulse 1.1s ease-in-out infinite;
   pointer-events: none;

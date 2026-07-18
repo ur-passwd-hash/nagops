@@ -597,7 +597,7 @@ export class CanvasRenderer {
       if (age < 0) {
         // Not lifted yet — hold in place, quivering in the beam
         ctx.font = g.font
-        ctx.fillStyle = 'rgba(160,255,210,0.9)'
+        ctx.fillStyle = 'rgba(165,244,255,0.9)'
         ctx.fillText(g.char, g.x + (Math.random() - 0.5) * 1.5, g.y + (Math.random() - 0.5) * 1.5)
         continue
       }
@@ -611,7 +611,7 @@ export class CanvasRenderer {
       const y = g.y + (g.ty - g.y) * ease
       ctx.font = g.font
       ctx.globalAlpha = 1 - ease * 0.8
-      ctx.fillStyle = 'rgba(160,255,210,1)'
+      ctx.fillStyle = 'rgba(165,244,255,1)'
       ctx.fillText(g.char, x, y)
     }
     ctx.globalAlpha = 1

@@ -38,57 +38,60 @@ class UfoShip {
     this.el.innerHTML = `
       <svg class="ufo-svg" viewBox="0 0 120 72" width="120" height="72" xmlns="http://www.w3.org/2000/svg">
         <defs>
-          <radialGradient id="ufoDome-${uid}" cx="38%" cy="28%" r="80%">
-            <stop offset="0%" stop-color="#eafff3" stop-opacity="0.95"/>
-            <stop offset="30%" stop-color="#8fe8b8" stop-opacity="0.8"/>
-            <stop offset="75%" stop-color="#2a6b47" stop-opacity="0.85"/>
-            <stop offset="100%" stop-color="#123324" stop-opacity="0.95"/>
+          <radialGradient id="ufoDome-${uid}" cx="40%" cy="30%" r="80%">
+            <stop offset="0%" stop-color="#3a4a5c" stop-opacity="0.9"/>
+            <stop offset="40%" stop-color="#16202e" stop-opacity="0.92"/>
+            <stop offset="100%" stop-color="#05080e" stop-opacity="0.98"/>
           </radialGradient>
           <linearGradient id="ufoHull-${uid}" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stop-color="#c3cbdd"/>
-            <stop offset="30%" stop-color="#828da6"/>
-            <stop offset="62%" stop-color="#454e63"/>
-            <stop offset="88%" stop-color="#232939"/>
-            <stop offset="100%" stop-color="#151a27"/>
+            <stop offset="0%" stop-color="#2b3242"/>
+            <stop offset="40%" stop-color="#181d29"/>
+            <stop offset="80%" stop-color="#0b0e16"/>
+            <stop offset="100%" stop-color="#05070c"/>
           </linearGradient>
           <linearGradient id="ufoRim-${uid}" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stop-color="#38405a"/>
-            <stop offset="100%" stop-color="#0c0f18"/>
+            <stop offset="0%" stop-color="#141926"/>
+            <stop offset="100%" stop-color="#020308"/>
           </linearGradient>
           <radialGradient id="ufoEngine-${uid}" cx="50%" cy="50%" r="50%">
-            <stop offset="0%" stop-color="#9dffce" stop-opacity="0.9"/>
-            <stop offset="60%" stop-color="#4be08f" stop-opacity="0.45"/>
-            <stop offset="100%" stop-color="#4be08f" stop-opacity="0"/>
+            <stop offset="0%" stop-color="#7df3ff" stop-opacity="0.85"/>
+            <stop offset="55%" stop-color="#28b8d8" stop-opacity="0.35"/>
+            <stop offset="100%" stop-color="#28b8d8" stop-opacity="0"/>
           </radialGradient>
+          <linearGradient id="ufoEdge-${uid}" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stop-color="#7df3ff" stop-opacity="0"/>
+            <stop offset="50%" stop-color="#7df3ff" stop-opacity="0.9"/>
+            <stop offset="100%" stop-color="#7df3ff" stop-opacity="0"/>
+          </linearGradient>
         </defs>
-        <!-- glass dome + alien pilot -->
+        <!-- smoked-glass dome + pilot silhouette -->
         <ellipse cx="60" cy="24" rx="26" ry="20" fill="url(#ufoDome-${uid})"/>
         <g class="ufo-alien">
-          <ellipse cx="60" cy="27" rx="8" ry="9" fill="#57c785"/>
-          <ellipse cx="56.5" cy="25.5" rx="2.4" ry="3.2" fill="#0e1f16"/>
-          <ellipse cx="63.5" cy="25.5" rx="2.4" ry="3.2" fill="#0e1f16"/>
-          <ellipse cx="57.2" cy="24.6" rx="0.8" ry="1" fill="#bfffe0"/>
-          <ellipse cx="64.2" cy="24.6" rx="0.8" ry="1" fill="#bfffe0"/>
+          <ellipse cx="60" cy="28" rx="8" ry="9" fill="#0a121c"/>
+          <ellipse cx="56.5" cy="26" rx="2.2" ry="3" fill="#7df3ff" opacity="0.9"/>
+          <ellipse cx="63.5" cy="26" rx="2.2" ry="3" fill="#7df3ff" opacity="0.9"/>
         </g>
-        <ellipse cx="50" cy="14" rx="10" ry="5" fill="#ffffff" opacity="0.5"/>
-        <!-- saucer hull -->
+        <ellipse cx="50" cy="13" rx="11" ry="4.5" fill="#9fb8d8" opacity="0.18"/>
+        <!-- obsidian saucer hull -->
         <ellipse cx="60" cy="44" rx="57" ry="17" fill="url(#ufoHull-${uid})"/>
-        <ellipse cx="60" cy="40" rx="57" ry="12" fill="#c9d2e4" opacity="0.22"/>
-        <!-- panel seams -->
-        <path d="M 8 44 Q 60 30 112 44" stroke="#1a2030" stroke-width="1" fill="none" opacity="0.55"/>
-        <path d="M 14 49 Q 60 62 106 49" stroke="#0e1220" stroke-width="1" fill="none" opacity="0.5"/>
-        <line x1="30" y1="34.5" x2="26" y2="41" stroke="#1a2030" stroke-width="0.8" opacity="0.45"/>
-        <line x1="60" y1="32" x2="60" y2="38.5" stroke="#1a2030" stroke-width="0.8" opacity="0.45"/>
-        <line x1="90" y1="34.5" x2="94" y2="41" stroke="#1a2030" stroke-width="0.8" opacity="0.45"/>
-        <!-- underside + engine glow -->
+        <ellipse cx="60" cy="39.5" rx="57" ry="11" fill="#5a6c8a" opacity="0.14"/>
+        <!-- cyan edge light along the leading rim -->
+        <path d="M 4 43 Q 60 27 116 43" stroke="url(#ufoEdge-${uid})" stroke-width="1.6" fill="none"/>
+        <!-- panel seams, barely-there -->
+        <path d="M 14 49 Q 60 62 106 49" stroke="#000208" stroke-width="1" fill="none" opacity="0.6"/>
+        <line x1="30" y1="34.5" x2="26" y2="41" stroke="#000208" stroke-width="0.8" opacity="0.5"/>
+        <line x1="60" y1="31.5" x2="60" y2="38.5" stroke="#000208" stroke-width="0.8" opacity="0.5"/>
+        <line x1="90" y1="34.5" x2="94" y2="41" stroke="#000208" stroke-width="0.8" opacity="0.5"/>
+        <!-- underside + ion ring -->
         <ellipse cx="60" cy="52" rx="36" ry="9" fill="url(#ufoRim-${uid})"/>
-        <ellipse class="ufo-engine" cx="60" cy="54" rx="22" ry="6" fill="url(#ufoEngine-${uid})"/>
-        <!-- rim running lights -->
-        <circle class="rl" cx="12" cy="42" r="3" fill="#ff5252"/>
-        <circle class="rl" cx="30" cy="50" r="3" fill="#ffb74d"/>
-        <circle class="rl" cx="60" cy="54" r="3" fill="#69f0ae"/>
-        <circle class="rl" cx="90" cy="50" r="3" fill="#ff5252"/>
-        <circle class="rl" cx="108" cy="42" r="3" fill="#ffb74d"/>
+        <ellipse class="ufo-engine" cx="60" cy="54" rx="24" ry="6" fill="url(#ufoEngine-${uid})"/>
+        <ellipse cx="60" cy="53" rx="30" ry="6.5" stroke="#7df3ff" stroke-width="0.8" fill="none" opacity="0.35"/>
+        <!-- rim marker lights — uniform cold cyan -->
+        <circle class="rl" cx="12" cy="42" r="2" fill="#7df3ff"/>
+        <circle class="rl" cx="30" cy="50" r="2" fill="#7df3ff"/>
+        <circle class="rl" cx="60" cy="54" r="2" fill="#7df3ff"/>
+        <circle class="rl" cx="90" cy="50" r="2" fill="#7df3ff"/>
+        <circle class="rl" cx="108" cy="42" r="2" fill="#7df3ff"/>
       </svg>
     `
     this.el.style.display = 'none'
