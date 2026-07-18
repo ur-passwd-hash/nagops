@@ -194,7 +194,7 @@ export class CanvasRenderer {
       const dw = iw * s
       const dh = ih * s
       ctx.drawImage(this.bgImg, (this.vw - dw) / 2, (this.vh - dh) / 2, dw, dh)
-      ctx.fillStyle = 'rgba(10, 14, 26, 0.32)'
+      ctx.fillStyle = 'rgba(10, 14, 26, 0.5)'
       ctx.fillRect(0, 0, this.vw, this.vh)
     }
 
@@ -259,7 +259,11 @@ export class CanvasRenderer {
       const cx = kw.x + kw.width / 2
       const cy = kw.y + kw.height / 2
 
-      // Moon centrifugal field — radial push + tangential orbital swirl
+      let pushed = false
+
+      // Moon centrifugal field — radial push + tangential orbital swirl.
+      // Must set `pushed`, or the rest-spring cancels the field every frame
+      // and words sit still instead of warping around the moon.
       if (moonX !== undefined && moonY !== undefined) {
         const dx = cx - moonX
         const dy = cy - moonY
@@ -274,11 +278,11 @@ export class CanvasRenderer {
           // Tangential force (perpendicular, clockwise) — 40% of radial
           kw.vx += -ny * force * 0.4
           kw.vy += nx * force * 0.4
+          pushed = true
         }
       }
 
       // Cursor/trail repulsion (check first 15 segments)
-      let pushed = false
       for (let si = 0; si < Math.min(15, trail.length); si++) {
         const seg = trail[si]
         if (seg.x < -1000) continue
