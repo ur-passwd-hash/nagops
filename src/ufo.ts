@@ -39,35 +39,59 @@ class UfoShip {
     // <defs> owner is display:none.
     const uid = `u${Math.random().toString(36).slice(2, 7)}`
     this.el.innerHTML = `
-      <svg class="ufo-svg" viewBox="0 0 80 48" width="80" height="48" xmlns="http://www.w3.org/2000/svg">
+      <svg class="ufo-svg" viewBox="0 0 120 72" width="120" height="72" xmlns="http://www.w3.org/2000/svg">
         <defs>
-          <radialGradient id="ufoDome-${uid}" cx="38%" cy="30%" r="75%">
-            <stop offset="0%" stop-color="#d8ffe9" stop-opacity="0.95"/>
-            <stop offset="35%" stop-color="#7fe0a8" stop-opacity="0.85"/>
-            <stop offset="100%" stop-color="#1d4d33" stop-opacity="0.9"/>
+          <radialGradient id="ufoDome-${uid}" cx="38%" cy="28%" r="80%">
+            <stop offset="0%" stop-color="#eafff3" stop-opacity="0.95"/>
+            <stop offset="30%" stop-color="#8fe8b8" stop-opacity="0.8"/>
+            <stop offset="75%" stop-color="#2a6b47" stop-opacity="0.85"/>
+            <stop offset="100%" stop-color="#123324" stop-opacity="0.95"/>
           </radialGradient>
           <linearGradient id="ufoHull-${uid}" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stop-color="#9aa3b8"/>
-            <stop offset="45%" stop-color="#5c6478"/>
-            <stop offset="80%" stop-color="#2e3444"/>
-            <stop offset="100%" stop-color="#1c2130"/>
+            <stop offset="0%" stop-color="#c3cbdd"/>
+            <stop offset="30%" stop-color="#828da6"/>
+            <stop offset="62%" stop-color="#454e63"/>
+            <stop offset="88%" stop-color="#232939"/>
+            <stop offset="100%" stop-color="#151a27"/>
           </linearGradient>
           <linearGradient id="ufoRim-${uid}" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stop-color="#3a4155"/>
-            <stop offset="100%" stop-color="#12151f"/>
+            <stop offset="0%" stop-color="#38405a"/>
+            <stop offset="100%" stop-color="#0c0f18"/>
           </linearGradient>
+          <radialGradient id="ufoEngine-${uid}" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#9dffce" stop-opacity="0.9"/>
+            <stop offset="60%" stop-color="#4be08f" stop-opacity="0.45"/>
+            <stop offset="100%" stop-color="#4be08f" stop-opacity="0"/>
+          </radialGradient>
         </defs>
-        <ellipse cx="40" cy="16" rx="17" ry="13" fill="url(#ufoDome-${uid})"/>
-        <ellipse cx="34" cy="10" rx="6" ry="3.5" fill="#ffffff" opacity="0.55"/>
-        <ellipse cx="40" cy="29" rx="38" ry="12" fill="url(#ufoHull-${uid})"/>
-        <ellipse cx="40" cy="26" rx="38" ry="9" fill="#aab3c8" opacity="0.28"/>
-        <ellipse cx="40" cy="34" rx="24" ry="6.5" fill="url(#ufoRim-${uid})"/>
-        <ellipse cx="40" cy="35.5" rx="14" ry="3.5" fill="#7fe0a8" opacity="0.35"/>
-        <circle class="rl" cx="10" cy="28" r="2.4" fill="#ff5252"/>
-        <circle class="rl" cx="24" cy="33" r="2.4" fill="#ffb74d"/>
-        <circle class="rl" cx="40" cy="35" r="2.4" fill="#69f0ae"/>
-        <circle class="rl" cx="56" cy="33" r="2.4" fill="#ff5252"/>
-        <circle class="rl" cx="70" cy="28" r="2.4" fill="#ffb74d"/>
+        <!-- glass dome + alien pilot -->
+        <ellipse cx="60" cy="24" rx="26" ry="20" fill="url(#ufoDome-${uid})"/>
+        <g class="ufo-alien">
+          <ellipse cx="60" cy="27" rx="8" ry="9" fill="#57c785"/>
+          <ellipse cx="56.5" cy="25.5" rx="2.4" ry="3.2" fill="#0e1f16"/>
+          <ellipse cx="63.5" cy="25.5" rx="2.4" ry="3.2" fill="#0e1f16"/>
+          <ellipse cx="57.2" cy="24.6" rx="0.8" ry="1" fill="#bfffe0"/>
+          <ellipse cx="64.2" cy="24.6" rx="0.8" ry="1" fill="#bfffe0"/>
+        </g>
+        <ellipse cx="50" cy="14" rx="10" ry="5" fill="#ffffff" opacity="0.5"/>
+        <!-- saucer hull -->
+        <ellipse cx="60" cy="44" rx="57" ry="17" fill="url(#ufoHull-${uid})"/>
+        <ellipse cx="60" cy="40" rx="57" ry="12" fill="#c9d2e4" opacity="0.22"/>
+        <!-- panel seams -->
+        <path d="M 8 44 Q 60 30 112 44" stroke="#1a2030" stroke-width="1" fill="none" opacity="0.55"/>
+        <path d="M 14 49 Q 60 62 106 49" stroke="#0e1220" stroke-width="1" fill="none" opacity="0.5"/>
+        <line x1="30" y1="34.5" x2="26" y2="41" stroke="#1a2030" stroke-width="0.8" opacity="0.45"/>
+        <line x1="60" y1="32" x2="60" y2="38.5" stroke="#1a2030" stroke-width="0.8" opacity="0.45"/>
+        <line x1="90" y1="34.5" x2="94" y2="41" stroke="#1a2030" stroke-width="0.8" opacity="0.45"/>
+        <!-- underside + engine glow -->
+        <ellipse cx="60" cy="52" rx="36" ry="9" fill="url(#ufoRim-${uid})"/>
+        <ellipse class="ufo-engine" cx="60" cy="54" rx="22" ry="6" fill="url(#ufoEngine-${uid})"/>
+        <!-- rim running lights -->
+        <circle class="rl" cx="12" cy="42" r="3" fill="#ff5252"/>
+        <circle class="rl" cx="30" cy="50" r="3" fill="#ffb74d"/>
+        <circle class="rl" cx="60" cy="54" r="3" fill="#69f0ae"/>
+        <circle class="rl" cx="90" cy="50" r="3" fill="#ff5252"/>
+        <circle class="rl" cx="108" cy="42" r="3" fill="#ffb74d"/>
       </svg>
     `
     this.el.style.display = 'none'
@@ -170,7 +194,7 @@ class UfoShip {
         // Collision check with asteroid cursor
         const dx = this.x - cursorX; const dy = this.y - cursorY
         const dist = Math.sqrt(dx * dx + dy * dy)
-        if (cursorX > -1000 && dist < 55) {
+        if (cursorX > -1000 && dist < 72) { // bigger ship, bigger hitbox
           // Asteroid hit the UFO — dramatic collision explosion + fade out
           this.el.style.zIndex = '-1' // drop below canvas so explosion renders on top
           this.phase = 'fade-out'; this.phaseStart = now
@@ -227,9 +251,19 @@ class UfoShip {
     return false
   }
 
+  private prevX = 0
+
   private applyPos(): void {
-    this.el.style.transform = `translate(${this.x - 40}px, ${this.y - 20}px)`
+    // Bank into turns: tilt follows horizontal velocity, eased and clamped
+    const vx = this.x - this.prevX
+    this.prevX = this.x
+    const targetBank = Math.max(-14, Math.min(14, vx * 2.2))
+    this.bank += (targetBank - this.bank) * 0.12
+    this.el.style.transform =
+      `translate(${this.x - 60}px, ${this.y - 30}px) rotate(${this.bank.toFixed(1)}deg)`
   }
+
+  private bank = 0
 }
 
 // ── Fleet manager: 2 ships, burst timing ──

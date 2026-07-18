@@ -77,7 +77,7 @@ async function boot() {
     canvasRenderer.triggerCollisionExplosion(x, y)
     // Intercept bounty — clicked or rammed the UFO before it abducted anything
     scoreboard.ship(250)
-    canvasRenderer.spawnScorePopup('+250 px · UFO intercepted', x, y - 50, '#3ce8b4')
+    canvasRenderer.spawnScorePopup('+250 pts · UFO intercepted', x, y - 50, '#3ce8b4')
   })
 
   const typingIndicator = new TypingIndicator()
@@ -99,10 +99,10 @@ async function boot() {
     if (shipped) {
       const before = scoreboard.total
       scoreboard.ship(Math.round(shipped.width))
-      // Milestone nag every 1,000 px shipped
+      // Milestone nag every 1,000 story points
       const milestone = Math.floor(scoreboard.total / 1000)
       if (milestone > Math.floor(before / 1000)) {
-        toastNotifications.push(`${(milestone * 1000).toLocaleString('en-US')} px shipped. stakeholders remain unimpressed.`)
+        toastNotifications.push(`${(milestone * 1000).toLocaleString('en-US')} story points shipped. stakeholders remain unimpressed.`)
       }
     } else {
       cycleQuote()

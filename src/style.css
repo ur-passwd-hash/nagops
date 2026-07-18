@@ -252,8 +252,23 @@ html, body {
   z-index: 1;
   pointer-events: auto;
   cursor: crosshair;
-  width: 80px;
-  height: 48px;
+  width: 120px;
+  height: 72px;
+}
+.ufo-engine {
+  animation: engine-pulse 0.8s ease-in-out infinite;
+}
+@keyframes engine-pulse {
+  0%, 100% { opacity: 0.55; }
+  50% { opacity: 1; }
+}
+.ufo-alien {
+  animation: alien-peek 5s ease-in-out infinite;
+  transform-origin: 60px 34px;
+}
+@keyframes alien-peek {
+  0%, 78%, 100% { transform: translateY(0); }
+  84%, 94% { transform: translateY(3px); }
 }
 .ufo-svg {
   display: block;
@@ -285,11 +300,11 @@ html, body {
 }
 .ufo-beam {
   position: absolute;
-  top: 30px;
+  top: 52px;
   left: 50%;
   transform: translateX(-50%);
-  width: 96px;
-  height: 100px;
+  width: 130px;
+  height: 120px;
   clip-path: polygon(36% 0, 64% 0, 100% 100%, 0 100%);
   background: linear-gradient(
     to bottom,
@@ -306,17 +321,17 @@ html, body {
 }
 .ufo-cow {
   position: absolute;
-  top: 80px;
+  top: 118px;
   left: 50%;
   transform: translateX(-50%);
-  font-size: 36px;
+  font-size: 40px;
   line-height: 1;
   text-align: center;
 }
 @media (max-width: 767px) {
   .ufo-cow {
     font-size: 58px;
-    top: 74px;
+    top: 110px;
   }
 }
 

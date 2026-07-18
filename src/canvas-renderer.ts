@@ -536,7 +536,7 @@ export class CanvasRenderer {
     const kw = this.keywords.splice(hit, 1)[0]
     this.scheduleRespawn(kw)
     this.shipBurst(kw.x + kw.width / 2, kw.y + kw.height / 2)
-    this.spawnScorePopup(`+${Math.round(kw.width)} px · ${kw.text}`, kw.x + kw.width / 2, kw.y - 8, '#3ce8b4')
+    this.spawnScorePopup(`+${Math.round(kw.width)} pts · ${kw.text}`, kw.x + kw.width / 2, kw.y - 8, '#3ce8b4')
     return { text: kw.text, width: kw.width }
   }
 
@@ -578,7 +578,7 @@ export class CanvasRenderer {
     }
     // Score popup lands after the last glyph disappears into the ship
     this.popups.push({
-      text: `-${Math.round(kw.width)} px · ${kw.text} abducted`,
+      text: `-${Math.round(kw.width)} pts · ${kw.text} abducted`,
       x: cx, y: cy - 40,
       bornAt: now + chars.length * STAGGER + 900,
       color: '#ff4444',

@@ -47,8 +47,8 @@ export class Scoreboard {
     this.numEl.style.font = numFont
     // Reserve space for the largest score this HUD can ever show — measured
     // with pretext before first paint, so the ticking number never reflows.
-    this.numEl.style.minWidth = `${Math.ceil(measure('9,999,999 px', numFont))}px`
-    this.numEl.textContent = '0 px'
+    this.numEl.style.minWidth = `${Math.ceil(measure('9,999,999 pts', numFont))}px`
+    this.numEl.textContent = '0 pts'
 
     this.subEl = document.createElement('div')
     this.subEl.className = 'scoreboard-sub'
@@ -78,7 +78,7 @@ export class Scoreboard {
   get shippedCount(): number { return this.shipped }
 
   private render(flashColor: string): void {
-    this.numEl.textContent = `${this.score.toLocaleString('en-US')} px`
+    this.numEl.textContent = `${this.score.toLocaleString('en-US')} pts`
     this.subEl.textContent = `${this.shipped} feature${this.shipped === 1 ? '' : 's'} shipped`
     this.numEl.style.color = flashColor
     // Scale pop — transform only, so still zero layout shift
