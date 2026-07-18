@@ -4,6 +4,7 @@ import type { TrailSegment } from './cursor.ts'
 import type { StarPoint } from './dumpster-fire.ts'
 import type { KeywordDef } from './types.ts'
 import asteroidUrl from '../asteroid.webp'
+import bgUrl from '../space-bg.webp'
 
 // ── Constants ──
 const HEAT_RADIUS = 140
@@ -88,7 +89,15 @@ export class CanvasRenderer {
     this.asteroidImg = new Image()
     this.asteroidImg.src = asteroidUrl
     this.asteroidImg.onload = () => { this.asteroidLoaded = true }
+
+    // Background starfield
+    this.bgImg = new Image()
+    this.bgImg.src = bgUrl
+    this.bgImg.onload = () => { this.bgLoaded = true }
   }
+
+  private bgImg: HTMLImageElement | null = null
+  private bgLoaded = false
 
   async init(defs: KeywordDef[]): Promise<void> {
     // Timeout fallback for Safari font loading issues
@@ -176,6 +185,18 @@ export class CanvasRenderer {
     ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0)
     ctx.fillStyle = '#0a0e1a'
     ctx.fillRect(0, 0, this.vw, this.vh)
+
+    // Starfield backdrop — cover-fit, then a dark wash for text legibility
+    if (this.bgLoaded && this.bgImg) {
+      const iw = this.bgImg.naturalWidth
+      const ih = this.bgImg.naturalHeight
+      const s = Math.max(this.vw / iw, this.vh / ih)
+      const dw = iw * s
+      const dh = ih * s
+      ctx.drawImage(this.bgImg, (this.vw - dw) / 2, (this.vh - dh) / 2, dw, dh)
+      ctx.fillStyle = 'rgba(10, 14, 26, 0.32)'
+      ctx.fillRect(0, 0, this.vw, this.vh)
+    }
 
     // 1. Physics update for keywords
     this.updatePhysics(trail, starPoints, moonX, moonY)
