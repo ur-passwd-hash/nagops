@@ -72,8 +72,8 @@ class UfoShip {
           <ellipse cx="63.5" cy="26" rx="2.2" ry="3" fill="#7df3ff" opacity="0.9"/>
         </g>
         <ellipse cx="50" cy="13" rx="11" ry="4.5" fill="#9fb8d8" opacity="0.18"/>
-        <!-- obsidian saucer hull -->
-        <ellipse cx="60" cy="44" rx="57" ry="17" fill="url(#ufoHull-${uid})"/>
+        <!-- obsidian saucer hull, light-gray outline -->
+        <ellipse cx="60" cy="44" rx="57" ry="17" fill="url(#ufoHull-${uid})" stroke="#aab2c0" stroke-width="1.2" opacity="0.95"/>
         <ellipse cx="60" cy="39.5" rx="57" ry="11" fill="#5a6c8a" opacity="0.14"/>
         <!-- cyan edge light along the leading rim -->
         <path d="M 4 43 Q 60 27 116 43" stroke="url(#ufoEdge-${uid})" stroke-width="1.6" fill="none"/>
@@ -120,7 +120,7 @@ class UfoShip {
   }
 
   private assignVariant(): void {
-    this.el.classList.toggle('ufo--pastel', Math.random() < 0.5)
+    // Single livery — obsidian with cyan accent, gray rim outline
   }
 
   startCowRun(moonX: number, moonY: number): void {

@@ -283,13 +283,6 @@ html, body {
 .ufo-svg .rl:nth-of-type(4) { animation-delay: 0.3s; }
 .ufo-svg .rl:nth-of-type(5) { animation-delay: 0.4s; }
 
-/* Variant — same obsidian artwork, violet accent instead of cyan */
-.ufo--pastel .ufo-svg {
-  filter: hue-rotate(70deg) drop-shadow(0 0 12px rgba(190, 140, 255, 0.25)) drop-shadow(0 4px 8px rgba(0, 0, 0, 0.7));
-}
-.ufo--pastel .ufo-beam {
-  filter: hue-rotate(70deg);
-}
 @keyframes ufo-blink {
   0% { opacity: 0.25; }
   100% { opacity: 1; }
