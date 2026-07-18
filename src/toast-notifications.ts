@@ -43,9 +43,15 @@ export class ToastNotifications {
   update(now: number): void {
     if (now < this.nextToast) return
     this.nextToast = now + 6000 + Math.random() * 12000
+    this.show(TOASTS[Math.floor(Math.random() * TOASTS.length)])
+  }
 
-    // Create toast
-    const msg = TOASTS[Math.floor(Math.random() * TOASTS.length)]
+  /** Push a custom toast immediately — Ship It milestones etc. */
+  push(msg: string): void {
+    this.show(msg)
+  }
+
+  private show(msg: string): void {
     const el = document.createElement('div')
     el.className = 'toast-notification'
     el.textContent = msg

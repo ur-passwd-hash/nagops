@@ -51,6 +51,18 @@ class UfoShip {
     this.cowEl.style.display = 'none'
     this.el.appendChild(this.cowEl)
     document.body.appendChild(this.el)
+
+    // Ship It: click an inbound UFO to intercept it before it abducts a
+    // keyword. Funnels through the same collision-explosion path as ramming
+    // it with the asteroid cursor. The cow run is sacred — not interceptable.
+    this.el.addEventListener('click', (e) => {
+      e.stopPropagation()
+      if (this.phase === 'to-target') {
+        this.el.style.zIndex = '-1'
+        this.phase = 'fade-out'; this.phaseStart = performance.now()
+        if (this.onCollisionExplode) this.onCollisionExplode(this.x, this.y + 20)
+      }
+    })
   }
 
   private assignVariant(): void {

@@ -503,20 +503,34 @@ export class CanvasRenderer {
    */
   shipKeywordAt(px: number, py: number): { text: string; width: number } | null {
     const PAD = 8
+    // The cursor's repulsion field pushes keywords away before a click can
+    // land on them, so a strict hitbox feels broken. Direct hits win; failing
+    // that, grab the nearest keyword still fleeing within reach.
+    const GRAB_RADIUS = 90
+    let hit = -1
     for (let i = this.keywords.length - 1; i >= 0; i--) {
       const kw = this.keywords[i]
       if (
         px >= kw.x - PAD && px <= kw.x + kw.width + PAD &&
         py >= kw.y - PAD && py <= kw.y + kw.height + PAD
-      ) {
-        this.keywords.splice(i, 1)
-        this.scheduleRespawn(kw)
-        this.shipBurst(kw.x + kw.width / 2, kw.y + kw.height / 2)
-        this.spawnPopup(`+${Math.round(kw.width)} px`, kw.x + kw.width / 2, kw.y - 6, '#3ce8b4')
-        return { text: kw.text, width: kw.width }
+      ) { hit = i; break }
+    }
+    if (hit < 0) {
+      let bestDist = GRAB_RADIUS
+      for (let i = 0; i < this.keywords.length; i++) {
+        const kw = this.keywords[i]
+        const dx = kw.x + kw.width / 2 - px
+        const dy = kw.y + kw.height / 2 - py
+        const d = Math.sqrt(dx * dx + dy * dy)
+        if (d < bestDist) { bestDist = d; hit = i }
       }
     }
-    return null
+    if (hit < 0) return null
+    const kw = this.keywords.splice(hit, 1)[0]
+    this.scheduleRespawn(kw)
+    this.shipBurst(kw.x + kw.width / 2, kw.y + kw.height / 2)
+    this.spawnScorePopup(`+${Math.round(kw.width)} px · ${kw.text}`, kw.x + kw.width / 2, kw.y - 8, '#3ce8b4')
+    return { text: kw.text, width: kw.width }
   }
 
   /** UFO abduction: remove the keyword nearest the explosion point. */
@@ -533,7 +547,7 @@ export class CanvasRenderer {
     if (best < 0) return null
     const kw = this.keywords.splice(best, 1)[0]
     this.scheduleRespawn(kw)
-    this.spawnPopup(`-${Math.round(kw.width)} px`, kw.x + kw.width / 2, kw.y - 6, '#ff4444')
+    this.spawnScorePopup(`-${Math.round(kw.width)} px · ${kw.text} abducted`, kw.x + kw.width / 2, kw.y - 8, '#ff4444')
     return { text: kw.text, width: kw.width }
   }
 
@@ -569,18 +583,19 @@ export class CanvasRenderer {
     }
   }
 
-  private spawnPopup(text: string, x: number, y: number, color: string): void {
+  /** Public: float a score popup at a canvas position (Ship It feedback). */
+  spawnScorePopup(text: string, x: number, y: number, color: string): void {
     this.popups.push({ text, x, y, life: 1, color })
   }
 
   private renderPopups(ctx: CanvasRenderingContext2D): void {
     if (this.popups.length === 0) return
-    ctx.font = '700 14px Inter, sans-serif'
+    ctx.font = '700 16px Inter, sans-serif'
     ctx.textAlign = 'center'
     for (let i = this.popups.length - 1; i >= 0; i--) {
       const p = this.popups[i]
       p.y -= 0.7
-      p.life -= 0.016
+      p.life -= 0.012
       if (p.life <= 0) { this.popups.splice(i, 1); continue }
       ctx.globalAlpha = Math.max(0, p.life)
       ctx.fillStyle = p.color

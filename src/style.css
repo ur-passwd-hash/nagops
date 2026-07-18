@@ -183,9 +183,22 @@ html, body {
   margin-bottom: 4px;
 }
 .scoreboard-score {
-  color: #8a94ab;
+  color: #b8c4dd;
   font-variant-numeric: tabular-nums;
   transition: color 0.3s ease;
+}
+.scoreboard-score.pop {
+  animation: score-pop 0.3s ease-out;
+}
+@keyframes score-pop {
+  0% { transform: scale(1.3); }
+  100% { transform: scale(1); }
+}
+.scoreboard-sub {
+  font: 500 10px/1 'Inter', sans-serif;
+  color: #555;
+  margin-top: 4px;
+  letter-spacing: 0.05em;
 }
 .countdown-label {
   font: 700 10px/1 'Inter', sans-serif;
@@ -234,7 +247,8 @@ html, body {
 .ufo {
   position: fixed;
   z-index: 1;
-  pointer-events: none;
+  pointer-events: auto;
+  cursor: crosshair;
   width: 80px;
   height: 48px;
 }

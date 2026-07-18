@@ -25,6 +25,7 @@ export class Scoreboard {
   private el: HTMLElement
   private labelEl: HTMLElement
   private numEl: HTMLElement
+  private subEl!: HTMLElement
   private score = 0
   private shipped = 0
   private flashTimer: number | undefined
@@ -49,10 +50,17 @@ export class Scoreboard {
     this.numEl.style.minWidth = `${Math.ceil(measure('9,999,999 px', numFont))}px`
     this.numEl.textContent = '0 px'
 
+    this.subEl = document.createElement('div')
+    this.subEl.className = 'scoreboard-sub'
+    this.subEl.textContent = 'ship something'
+
     this.el.appendChild(this.labelEl)
     this.el.appendChild(this.numEl)
+    this.el.appendChild(this.subEl)
     document.body.appendChild(this.el)
   }
+
+  get total(): number { return this.score }
 
   /** A keyword was shipped: score += its measured pixel width. */
   ship(points: number): void {
@@ -71,7 +79,12 @@ export class Scoreboard {
 
   private render(flashColor: string): void {
     this.numEl.textContent = `${this.score.toLocaleString('en-US')} px`
+    this.subEl.textContent = `${this.shipped} feature${this.shipped === 1 ? '' : 's'} shipped`
     this.numEl.style.color = flashColor
+    // Scale pop — transform only, so still zero layout shift
+    this.numEl.classList.remove('pop')
+    void this.numEl.offsetWidth // restart animation
+    this.numEl.classList.add('pop')
     clearTimeout(this.flashTimer)
     this.flashTimer = window.setTimeout(() => {
       this.numEl.style.color = ''
