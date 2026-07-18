@@ -67,9 +67,10 @@ async function boot() {
   })
   ufo.onExplosion((x, y) => {
     canvasRenderer.triggerExplosion(x, y)
-    // The UFO abducts the nearest unshipped keyword — its measured width
-    // comes straight off the scoreboard. Ship faster.
-    const stolen = canvasRenderer.stealNearestKeyword(x, y)
+    // The tractor beam pulls the nearest keyword apart glyph by glyph —
+    // per-character offsets are pretext's measured widths, summed. Its
+    // measured width comes straight off the scoreboard. Ship faster.
+    const stolen = canvasRenderer.abductKeywordNear(x, y)
     if (stolen) scoreboard.steal(Math.round(stolen.width))
   })
   ufo.onCollisionExplosion((x, y) => {

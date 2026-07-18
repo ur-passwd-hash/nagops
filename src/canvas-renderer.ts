@@ -71,6 +71,11 @@ export class CanvasRenderer {
   private flash: { x: number; y: number; start: number } | null = null
   private respawnQueue: { kw: PlacedKeyword; at: number }[] = []
   private popups: { text: string; x: number; y: number; bornAt: number; color: string }[] = []
+  private risingGlyphs: {
+    char: string; font: string
+    x: number; y: number; tx: number; ty: number
+    bornAt: number
+  }[] = []
 
   constructor(container: HTMLElement) {
     this.canvas = document.createElement('canvas')
@@ -213,9 +218,11 @@ export class CanvasRenderer {
     ctx.globalCompositeOperation = 'source-over'
     this.renderKeywords(ctx, trail)
 
-    // 7. Ship It: respawn shipped/stolen keywords, float score popups
-    this.processRespawns(performance.now())
-    this.renderPopups(ctx, performance.now())
+    // 7. Ship It: respawns, tractor-beam glyphs, score popups
+    const nowMs = performance.now()
+    this.processRespawns(nowMs)
+    this.renderRisingGlyphs(ctx, nowMs)
+    this.renderPopups(ctx, nowMs)
   }
 
   // ── Physics: repel keywords from trail + shooting stars ──
@@ -533,8 +540,13 @@ export class CanvasRenderer {
     return { text: kw.text, width: kw.width }
   }
 
-  /** UFO abduction: remove the keyword nearest the explosion point. */
-  stealNearestKeyword(cx: number, cy: number, radius = 240): { text: string; width: number } | null {
+  /**
+   * UFO abduction: the tractor beam pulls the nearest keyword apart glyph by
+   * glyph. Each character's x-offset is the running sum of pretext's
+   * per-grapheme widths — measured once at placement, replayed here as pure
+   * arithmetic. No DOM, no re-measurement, just addition.
+   */
+  abductKeywordNear(cx: number, cy: number, radius = 240): { text: string; width: number } | null {
     let best = -1
     let bestDist = radius
     for (let i = 0; i < this.keywords.length; i++) {
@@ -547,8 +559,62 @@ export class CanvasRenderer {
     if (best < 0) return null
     const kw = this.keywords.splice(best, 1)[0]
     this.scheduleRespawn(kw)
-    this.spawnScorePopup(`-${Math.round(kw.width)} px · ${kw.text} abducted`, kw.x + kw.width / 2, kw.y - 8, '#ff4444')
+
+    const chars = [...kw.text]
+    const widths = kw.prepared.widths.length === chars.length
+      ? kw.prepared.widths
+      : chars.map(() => kw.width / chars.length) // fallback: even split
+    const now = performance.now()
+    const STAGGER = 70 // ms between characters lifting off (last char first — the beam eats from the end)
+    let offset = 0
+    for (let i = 0; i < chars.length; i++) {
+      this.risingGlyphs.push({
+        char: chars[i], font: kw.font,
+        x: kw.x + offset, y: kw.y,
+        tx: cx, ty: cy - 30,
+        bornAt: now + (chars.length - 1 - i) * STAGGER,
+      })
+      offset += widths[i]
+    }
+    // Score popup lands after the last glyph disappears into the ship
+    this.popups.push({
+      text: `-${Math.round(kw.width)} px · ${kw.text} abducted`,
+      x: cx, y: cy - 40,
+      bornAt: now + chars.length * STAGGER + 900,
+      color: '#ff4444',
+    })
     return { text: kw.text, width: kw.width }
+  }
+
+  private renderRisingGlyphs(ctx: CanvasRenderingContext2D, now: number): void {
+    if (this.risingGlyphs.length === 0) return
+    const RISE_MS = 900
+    ctx.textBaseline = 'top'
+    ctx.textAlign = 'left'
+    for (let i = this.risingGlyphs.length - 1; i >= 0; i--) {
+      const g = this.risingGlyphs[i]
+      const age = now - g.bornAt
+      if (age < 0) {
+        // Not lifted yet — hold in place, quivering in the beam
+        ctx.font = g.font
+        ctx.fillStyle = 'rgba(160,255,210,0.9)'
+        ctx.fillText(g.char, g.x + (Math.random() - 0.5) * 1.5, g.y + (Math.random() - 0.5) * 1.5)
+        continue
+      }
+      const p = Math.min(age / RISE_MS, 1)
+      if (p >= 1) {
+        this.risingGlyphs.splice(i, 1)
+        continue
+      }
+      const ease = p * p // accelerate upward into the ship
+      const x = g.x + (g.tx - g.x) * ease
+      const y = g.y + (g.ty - g.y) * ease
+      ctx.font = g.font
+      ctx.globalAlpha = 1 - ease * 0.8
+      ctx.fillStyle = 'rgba(160,255,210,1)'
+      ctx.fillText(g.char, x, y)
+    }
+    ctx.globalAlpha = 1
   }
 
   private scheduleRespawn(kw: PlacedKeyword): void {
@@ -596,6 +662,7 @@ export class CanvasRenderer {
     for (let i = this.popups.length - 1; i >= 0; i--) {
       const p = this.popups[i]
       const age = now - p.bornAt
+      if (age < 0) continue // scheduled for later (post-abduction reveal)
       if (age >= LIFETIME) { this.popups.splice(i, 1); continue }
       ctx.globalAlpha = 1 - age / LIFETIME
       ctx.fillStyle = p.color

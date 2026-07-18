@@ -35,10 +35,40 @@ class UfoShip {
   constructor() {
     this.el = document.createElement('div')
     this.el.className = 'ufo'
+    // Unique gradient IDs per ship — shared IDs break when the other ship's
+    // <defs> owner is display:none.
+    const uid = `u${Math.random().toString(36).slice(2, 7)}`
     this.el.innerHTML = `
-      <div class="ufo-dome"></div>
-      <div class="ufo-body"></div>
-      <div class="ufo-lights"><span></span><span></span><span></span><span></span><span></span></div>
+      <svg class="ufo-svg" viewBox="0 0 80 48" width="80" height="48" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <radialGradient id="ufoDome-${uid}" cx="38%" cy="30%" r="75%">
+            <stop offset="0%" stop-color="#d8ffe9" stop-opacity="0.95"/>
+            <stop offset="35%" stop-color="#7fe0a8" stop-opacity="0.85"/>
+            <stop offset="100%" stop-color="#1d4d33" stop-opacity="0.9"/>
+          </radialGradient>
+          <linearGradient id="ufoHull-${uid}" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#9aa3b8"/>
+            <stop offset="45%" stop-color="#5c6478"/>
+            <stop offset="80%" stop-color="#2e3444"/>
+            <stop offset="100%" stop-color="#1c2130"/>
+          </linearGradient>
+          <linearGradient id="ufoRim-${uid}" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#3a4155"/>
+            <stop offset="100%" stop-color="#12151f"/>
+          </linearGradient>
+        </defs>
+        <ellipse cx="40" cy="16" rx="17" ry="13" fill="url(#ufoDome-${uid})"/>
+        <ellipse cx="34" cy="10" rx="6" ry="3.5" fill="#ffffff" opacity="0.55"/>
+        <ellipse cx="40" cy="29" rx="38" ry="12" fill="url(#ufoHull-${uid})"/>
+        <ellipse cx="40" cy="26" rx="38" ry="9" fill="#aab3c8" opacity="0.28"/>
+        <ellipse cx="40" cy="34" rx="24" ry="6.5" fill="url(#ufoRim-${uid})"/>
+        <ellipse cx="40" cy="35.5" rx="14" ry="3.5" fill="#7fe0a8" opacity="0.35"/>
+        <circle class="rl" cx="10" cy="28" r="2.4" fill="#ff5252"/>
+        <circle class="rl" cx="24" cy="33" r="2.4" fill="#ffb74d"/>
+        <circle class="rl" cx="40" cy="35" r="2.4" fill="#69f0ae"/>
+        <circle class="rl" cx="56" cy="33" r="2.4" fill="#ff5252"/>
+        <circle class="rl" cx="70" cy="28" r="2.4" fill="#ffb74d"/>
+      </svg>
     `
     this.el.style.display = 'none'
     this.beamEl = document.createElement('div')
@@ -149,13 +179,15 @@ class UfoShip {
         }
         if (this.moveToward(this.tx, this.ty)) {
             this.phase = 'explode'; this.phaseStart = now
+          this.beamEl.style.display = '' // tractor beam on while glyphs rise
           if (this.onExplode) this.onExplode(this.x, this.y + 20)
         }
         break
       }
       case 'explode':
-        // Normal timed explosion — fly off after
+        // Hover with the beam on while the abduction plays out, then leave
         if (elapsed > EXPLODE_DURATION) {
+          this.beamEl.style.display = 'none'
           this.tx = -140; this.ty = this.y - 60
           this.phase = 'exit-final'; this.phaseStart = now
         }
