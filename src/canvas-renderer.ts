@@ -280,11 +280,11 @@ export class CanvasRenderer {
           const ny = dy / dist
           // Steer toward the orbit ring: outward if too close, inward if far
           const MOON_RING = 145
-          const ringPull = (MOON_RING - dist) * 0.02
+          const ringPull = (MOON_RING - dist) * 0.002
           kw.vx += nx * ringPull
           kw.vy += ny * ringPull
           // Constant clockwise tangential drive — this is the revolution
-          const TANGENTIAL_DRIVE = 0.55
+          const TANGENTIAL_DRIVE = 0.06
           kw.vx += -ny * TANGENTIAL_DRIVE
           kw.vy += nx * TANGENTIAL_DRIVE
           pushed = true
