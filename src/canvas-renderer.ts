@@ -260,36 +260,12 @@ export class CanvasRenderer {
     trail: TrailSegment[], starPoints: StarPoint[],
     moonX?: number, moonY?: number,
   ): void {
-    const MOON_REPULSION_RADIUS = 220
 
     for (const kw of this.keywords) {
       const cx = kw.x + kw.width / 2
       const cy = kw.y + kw.height / 2
 
       let pushed = false
-
-      // Moon orbital field: words inside the field are steered onto a ring
-      // and driven around it clockwise — an orbit, not a shove. The spring
-      // is suppressed while orbiting (else it cancels the field each frame).
-      if (moonX !== undefined && moonY !== undefined) {
-        const dx = cx - moonX
-        const dy = cy - moonY
-        const dist = Math.sqrt(dx * dx + dy * dy)
-        if (dist < MOON_REPULSION_RADIUS && dist > 1) {
-          const nx = dx / dist
-          const ny = dy / dist
-          // Steer toward the orbit ring: outward if too close, inward if far
-          const MOON_RING = 145
-          const ringPull = (MOON_RING - dist) * 0.002
-          kw.vx += nx * ringPull
-          kw.vy += ny * ringPull
-          // Constant clockwise tangential drive — this is the revolution
-          const TANGENTIAL_DRIVE = 0.06
-          kw.vx += -ny * TANGENTIAL_DRIVE
-          kw.vy += nx * TANGENTIAL_DRIVE
-          pushed = true
-        }
-      }
 
       // Cursor/trail repulsion (check first 15 segments)
       for (let si = 0; si < Math.min(15, trail.length); si++) {
@@ -706,7 +682,9 @@ export class CanvasRenderer {
     ctx.textAlign = 'left'
   }
 
-  /** Apply a centrifugal burst from a point — used by moon click */
+  /** Apply a centrifugal burst from a point — used by moon click.
+   *  Radial push + clockwise tangential swirl, so words revolve around the
+   *  spinning moon instead of just fleeing it. Click-activated only. */
   applyCentrifugalBurst(cx: number, cy: number, radius: number, strength: number): void {
     for (const kw of this.keywords) {
       const kwCx = kw.x + kw.width / 2
@@ -716,8 +694,13 @@ export class CanvasRenderer {
       const dist = Math.sqrt(dx * dx + dy * dy)
       if (dist < radius && dist > 1) {
         const force = strength * (1 - dist / radius)
-        kw.vx += (dx / dist) * force
-        kw.vy += (dy / dist) * force
+        const nx = dx / dist
+        const ny = dy / dist
+        kw.vx += nx * force * 0.5
+        kw.vy += ny * force * 0.5
+        // Swirl: dominant tangential component while the moon spins
+        kw.vx += -ny * force * 0.8
+        kw.vy += nx * force * 0.8
       }
     }
   }
