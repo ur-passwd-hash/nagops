@@ -1,6 +1,6 @@
 /**
- * UFO fleet — 2 concurrent ships. First run: cow abduction.
- * Then burst mode: UFOs every 4s for 30s, 3min cooldown, repeat.
+ * UFO fleet — 2 concurrent ships. First-ever run: cow abduction. After that,
+ * every sprint-clock zero launches one keyword-abduction run.
  * Two color variants assigned randomly per ship.
  */
 
@@ -12,9 +12,6 @@ const SPEED = 4 // px per 60fps-frame; scaled by dt so throttled tabs don't free
 const ABDUCT_DURATION = 1500
 const EXPLODE_DURATION = 1800
 const WAIT_DURATION = 2000
-const BURST_INTERVAL = 4000
-const BURST_DURATION = 30_000
-const COOLDOWN = 180_000
 
 // ── Single UFO ship ──
 class UfoShip {
@@ -266,19 +263,12 @@ class UfoShip {
   private bank = 0
 }
 
-// ── Fleet manager: 2 ships, burst timing ──
+// ── Fleet manager: 2 ships, one run per sprint-clock zero ──
 export class Ufo {
   private ships: UfoShip[]
-  private cowStarted = false
-  private firstRunDone = false
-  private nextRepeat = 0
-  private burstStart = 0
-  private inBurst = false
-  private cooldownEnd = 0
-  private inCooldown = false
+  private cowDone = false
   private keywordTarget: { x: number; y: number } | null = null
   private lastNow = 0
-  private onCompleteCb: (() => void) | null = null
   private onExplodeCb: ((x: number, y: number) => void) | null = null
   private onCollisionExplodeCb: ((x: number, y: number) => void) | null = null
 
@@ -287,11 +277,9 @@ export class Ufo {
     for (const ship of this.ships) {
       ship.onExplode = (x, y) => { if (this.onExplodeCb) this.onExplodeCb(x, y) }
       ship.onCollisionExplode = (x, y) => { if (this.onCollisionExplodeCb) this.onCollisionExplodeCb(x, y) }
-      ship.onDone = () => { if (this.onCompleteCb) this.onCompleteCb() }
     }
   }
 
-  onSequenceComplete(cb: () => void): void { this.onCompleteCb = cb }
   onExplosion(cb: (x: number, y: number) => void): void { this.onExplodeCb = cb }
   onCollisionExplosion(cb: (x: number, y: number) => void): void { this.onCollisionExplodeCb = cb }
 
@@ -299,68 +287,28 @@ export class Ufo {
     this.keywordTarget = { x, y }
   }
 
-  /** First run: cow abduction on ship 0 — only once */
-  start(moonX: number, moonY: number): void {
-    if (this.cowStarted) return
-    this.cowStarted = true
-    this.ships[0].startCowRun(moonX, moonY)
-  }
-
-  /** Find an idle ship, or null */
-  private getIdleShip(): UfoShip | null {
-    return this.ships.find(s => s.phase === 'idle') ?? null
+  /**
+   * One run per sprint-clock zero: the first-ever run is the cow abduction,
+   * every one after targets a keyword. The 30s clock IS the cadence — no
+   * burst windows, no cooldowns, no dead air.
+   */
+  launch(moonX: number, moonY: number): void {
+    if (!this.cowDone) {
+      this.cowDone = true
+      this.ships[0].startCowRun(moonX, moonY)
+      return
+    }
+    const ship = this.ships.find(s => s.phase === 'idle')
+    if (ship) ship.startExplosionRun(this.keywordTarget)
   }
 
   update(now: number, cursorX: number, cursorY: number): void {
-    // Burst scheduling
-    if (this.firstRunDone && now >= this.nextRepeat) {
-      if (!this.inBurst) {
-        this.inBurst = true
-        this.burstStart = now
-      }
-      if (this.inBurst) {
-        const burstElapsed = now - this.burstStart
-        if (burstElapsed < BURST_DURATION) {
-          const ship = this.getIdleShip()
-          if (ship) {
-            ship.startExplosionRun(this.keywordTarget)
-            this.nextRepeat = now + BURST_INTERVAL
-          }
-        } else {
-          // Burst over — enter cooldown, then full reset
-          this.inBurst = false
-          this.cooldownEnd = now + COOLDOWN
-          this.inCooldown = true
-          this.firstRunDone = false
-        }
-      }
-    }
-
-    // After cooldown ends, reset everything for a new cow→burst cycle
-    if (this.inCooldown && now >= this.cooldownEnd) {
-      this.inCooldown = false
-      this.cowStarted = false
-      this.firstRunDone = false
-      for (const ship of this.ships) { ship.hasRun = false }
-      // Trigger countdown reset → 30s later onZero fires → start() cow
-      if (this.onCompleteCb) this.onCompleteCb()
-    }
-
     // Frame-rate-independent movement: dt = elapsed frames at 60fps, capped
     // so a long throttled gap doesn't teleport ships across the screen.
     const dt = Math.min((now - (this.lastNow || now)) / 16.7, 3)
     this.lastNow = now
     for (const ship of this.ships) {
       ship.update(now, cursorX, cursorY, dt)
-    }
-
-    // After ship 0's first cow run finishes, start burst
-    if (!this.firstRunDone && !this.inCooldown &&
-        this.ships[0].hasRun && this.ships[0].phase === 'idle') {
-      this.firstRunDone = true
-      this.nextRepeat = now + BURST_INTERVAL
-      this.inBurst = true
-      this.burstStart = now
     }
   }
 }

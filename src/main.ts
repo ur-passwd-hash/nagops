@@ -57,14 +57,12 @@ async function boot() {
   // Moon — top-right, click to spin + centrifugal burst
   const moon = new Moon()
   moon.onCentrifugalBurst((cx, cy, radius, strength) => {
-    canvasRenderer.applyCentrifugalBurst(cx, cy, radius, strength)
+    // Wider, harder fling — more of the field orbits into the spin
+    canvasRenderer.applyCentrifugalBurst(cx, cy, radius * 1.8, strength * 1.4)
   })
 
   // UFO animation
   const ufo = new Ufo()
-  ufo.onSequenceComplete(() => {
-    sprintCountdown.reset()
-  })
   ufo.onExplosion((x, y) => {
     canvasRenderer.triggerExplosion(x, y)
     // The tractor beam pulls the nearest keyword apart glyph by glyph —
@@ -85,11 +83,11 @@ async function boot() {
   const toastNotifications = new ToastNotifications()
   const scoreboard = new Scoreboard()
 
-  // When sprint countdown hits zero, launch UFO toward moon
+  // Every sprint-clock zero launches one UFO run; the clock restarts itself
   sprintCountdown.onZero(() => {
     const kwPos = canvasRenderer.getRandomKeywordPos()
     if (kwPos) ufo.setKeywordTarget(kwPos.x, kwPos.y)
-    ufo.start(moon.centerX, moon.centerY)
+    ufo.launch(moon.centerX, moon.centerY)
   })
 
   window.addEventListener('click', (e) => {

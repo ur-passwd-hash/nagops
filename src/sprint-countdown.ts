@@ -18,7 +18,6 @@ export class SprintCountdown {
   private endTime: number
   private currentLabel: string
   private onZeroCb: (() => void) | null = null
-  private fired = false
 
   constructor() {
     this.el = document.createElement('div')
@@ -49,24 +48,20 @@ export class SprintCountdown {
     this.currentLabel = LABELS[Math.floor(Math.random() * LABELS.length)]
     this.labelEl.textContent = this.currentLabel
     this.timeEl.style.color = ''
-    this.fired = false
   }
 
   update(): void {
-    // Once fired, hold at 00:00:00 until reset() — no sentinel math leaking
-    // into the display.
-    if (this.fired) {
-      this.timeEl.textContent = '00:00:00'
-      return
-    }
-
     const remaining = Math.max(0, this.endTime - Date.now())
 
     if (remaining <= 0) {
+      // The nag never stops: fire, flash red for a beat, restart immediately
+      // with a fresh deadline. There is always a next sprint.
       this.timeEl.textContent = '00:00:00'
       this.timeEl.style.color = '#ff4444'
-      this.fired = true
       if (this.onZeroCb) this.onZeroCb()
+      setTimeout(() => this.reset(), 900)
+      // Guard against re-firing while the red flash lingers
+      this.endTime = Date.now() + 900
       return
     }
 

@@ -200,11 +200,40 @@ const vibe: string[] = [
   'let me get back to you (I won\'t)',
 ]
 
+// ── Dry asides — deadpan, muttered under the org chart's breath ──
+const dry: string[] = [
+  'the estimate was a mood',
+  'story points are astrology for engineers',
+  'we measure velocity. we do not achieve it.',
+  'agile, in the way a brick is agile',
+  'the retro action items from the last retro: unread',
+  'blocked, in the spiritual sense',
+  'the deadline moved. backwards. somehow.',
+  'scope creep is just ambition with bad manners',
+  'this sprint is a marathon of sprints',
+  'the burndown chart burned up',
+  'alignment achieved (nobody agrees)',
+  'single source of truth #4',
+  'the process exists to protect us from the process',
+  'we don\'t have tech debt, we have tech heritage',
+  'it works on the demo machine',
+  'the fix is in review. the review is in limbo. limbo is at capacity.',
+  'per the doc nobody read',
+  'shipped is a state of mind',
+  'the standup sat down',
+  'we agreed to disagree to commit',
+  'roadmap subject to vibes',
+  'the acceptance criteria have not accepted us',
+  'done-done, as opposed to done',
+  'the sprint goal is to survive the sprint',
+]
+
 // ── Build the final keyword list with size overrides ──
 export const ALL_KEYWORDS: KeywordDef[] = [
   ...nags.map(text => ({ text, category: 'infra' as const, size: 'large' as const })),
   ...ops.map(text => ({ text, category: 'culture' as const, size: 'normal' as const })),
   ...vibe.map(text => ({ text, category: 'despair' as const, size: 'small' as const })),
+  ...dry.map(text => ({ text, category: 'despair' as const, size: 'normal' as const })),
   // Easter egg — smallest, dimmest, hardest to find
   { text: 'Hi Alex', category: 'despair' as const, size: 'small' as const },
 ]
