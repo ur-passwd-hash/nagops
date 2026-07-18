@@ -21,8 +21,8 @@ Reviewed the deployed 67 KB JS bundle and index.html directly. Findings, all low
 ## Build & verify
 
 ```bash
-npm ci
-npm run build
+pnpm install --frozen-lockfile
+pnpm build
 ls dist/_headers dist/.well-known/security.txt
 ```
 

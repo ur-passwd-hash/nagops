@@ -1,0 +1,14 @@
+# Supply-chain posture (pnpm 11) — see https://pnpm.io/supply-chain-security
+# Install scripts are dead by default since pnpm 10; nothing here needs
+# approve-builds (vite 8 / rolldown ship prebuilt platform binaries).
+
+# Don't install anything published in the last 3 days — malicious releases
+# rarely survive a day (pnpm 11 default: 1440)
+minimumReleaseAge: 4320
+
+# Transitive deps can't resolve from git repos or tarball URLs (11 default: true)
+blockExoticSubdeps: true
+
+# Refuse packages whose publisher trust dropped vs. prior releases —
+# the fingerprint of a hijacked maintainer account (opt-in)
+trustPolicy: no-downgrade
