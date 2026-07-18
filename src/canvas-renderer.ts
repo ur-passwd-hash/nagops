@@ -179,7 +179,7 @@ export class CanvasRenderer {
   render(
     trail: TrailSegment[], speed: number, _now: number,
     starPoints: StarPoint[],
-    moonX?: number, moonY?: number,
+    _moonX?: number, _moonY?: number,
   ): void {
     const ctx = this.ctx
     ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0)
@@ -208,7 +208,7 @@ export class CanvasRenderer {
     }
 
     // 1. Physics update for keywords
-    this.updatePhysics(trail, starPoints, moonX, moonY)
+    this.updatePhysics(trail, starPoints)
 
     // 2. Draw fire trail (additive blending)
     this.renderTrail(ctx, trail, speed)
@@ -258,7 +258,6 @@ export class CanvasRenderer {
   // ── Physics: repel keywords from trail + shooting stars ──
   private updatePhysics(
     trail: TrailSegment[], starPoints: StarPoint[],
-    moonX?: number, moonY?: number,
   ): void {
 
     for (const kw of this.keywords) {
