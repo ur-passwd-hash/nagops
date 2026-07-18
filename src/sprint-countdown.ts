@@ -48,23 +48,25 @@ export class SprintCountdown {
     this.endTime = Date.now() + 30_000
     this.currentLabel = LABELS[Math.floor(Math.random() * LABELS.length)]
     this.labelEl.textContent = this.currentLabel
+    this.timeEl.style.color = ''
     this.fired = false
   }
 
   update(): void {
+    // Once fired, hold at 00:00:00 until reset() — no sentinel math leaking
+    // into the display.
+    if (this.fired) {
+      this.timeEl.textContent = '00:00:00'
+      return
+    }
+
     const remaining = Math.max(0, this.endTime - Date.now())
 
     if (remaining <= 0) {
       this.timeEl.textContent = '00:00:00'
       this.timeEl.style.color = '#ff4444'
-
-      if (!this.fired) {
-        this.fired = true
-        if (this.onZeroCb) this.onZeroCb()
-      }
-
-      // Push endTime forward so we don't re-trigger
-      this.endTime = Date.now() + 99999999
+      this.fired = true
+      if (this.onZeroCb) this.onZeroCb()
       return
     }
 

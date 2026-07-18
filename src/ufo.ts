@@ -8,7 +8,7 @@ export interface UfoPoint { x: number; y: number; attract: boolean }
 
 type Phase = 'idle' | 'to-moon' | 'abduct' | 'exit-cow' | 'wait' | 'to-target' | 'explode' | 'exit-final' | 'fade-out'
 
-const SPEED = 4
+const SPEED = 4 // px per 60fps-frame; scaled by dt so throttled tabs don't freeze the fleet
 const ABDUCT_DURATION = 1500
 const EXPLODE_DURATION = 1800
 const WAIT_DURATION = 2000
@@ -98,8 +98,9 @@ class UfoShip {
     this.applyPos()
   }
 
-  update(now: number, cursorX: number, cursorY: number): void {
+  update(now: number, cursorX: number, cursorY: number, dt = 1): void {
     if (this.phase === 'idle') return
+    this.dt = dt
     const elapsed = now - this.phaseStart
 
     switch (this.phase) {
@@ -183,11 +184,14 @@ class UfoShip {
     this.applyPos()
   }
 
+  private dt = 1
+
   private moveToward(tx: number, ty: number): boolean {
+    const step = SPEED * this.dt
     const dx = tx - this.x; const dy = ty - this.y
     const dist = Math.sqrt(dx * dx + dy * dy)
-    if (dist < SPEED) { this.x = tx; this.y = ty; return true }
-    this.x += (dx / dist) * SPEED; this.y += (dy / dist) * SPEED
+    if (dist < step) { this.x = tx; this.y = ty; return true }
+    this.x += (dx / dist) * step; this.y += (dy / dist) * step
     return false
   }
 
@@ -207,6 +211,7 @@ export class Ufo {
   private cooldownEnd = 0
   private inCooldown = false
   private keywordTarget: { x: number; y: number } | null = null
+  private lastNow = 0
   private onCompleteCb: (() => void) | null = null
   private onExplodeCb: ((x: number, y: number) => void) | null = null
   private onCollisionExplodeCb: ((x: number, y: number) => void) | null = null
@@ -275,9 +280,12 @@ export class Ufo {
       if (this.onCompleteCb) this.onCompleteCb()
     }
 
-    // Detect first run completion
+    // Frame-rate-independent movement: dt = elapsed frames at 60fps, capped
+    // so a long throttled gap doesn't teleport ships across the screen.
+    const dt = Math.min((now - (this.lastNow || now)) / 16.7, 3)
+    this.lastNow = now
     for (const ship of this.ships) {
-      ship.update(now, cursorX, cursorY)
+      ship.update(now, cursorX, cursorY, dt)
     }
 
     // After ship 0's first cow run finishes, start burst

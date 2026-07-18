@@ -70,7 +70,7 @@ export class CanvasRenderer {
   private angle = 0
   private flash: { x: number; y: number; start: number } | null = null
   private respawnQueue: { kw: PlacedKeyword; at: number }[] = []
-  private popups: { text: string; x: number; y: number; life: number; color: string }[] = []
+  private popups: { text: string; x: number; y: number; bornAt: number; color: string }[] = []
 
   constructor(container: HTMLElement) {
     this.canvas = document.createElement('canvas')
@@ -214,8 +214,8 @@ export class CanvasRenderer {
     this.renderKeywords(ctx, trail)
 
     // 7. Ship It: respawn shipped/stolen keywords, float score popups
-    this.processRespawns(_now)
-    this.renderPopups(ctx)
+    this.processRespawns(performance.now())
+    this.renderPopups(ctx, performance.now())
   }
 
   // ── Physics: repel keywords from trail + shooting stars ──
@@ -585,21 +585,21 @@ export class CanvasRenderer {
 
   /** Public: float a score popup at a canvas position (Ship It feedback). */
   spawnScorePopup(text: string, x: number, y: number, color: string): void {
-    this.popups.push({ text, x, y, life: 1, color })
+    this.popups.push({ text, x, y, bornAt: performance.now(), color })
   }
 
-  private renderPopups(ctx: CanvasRenderingContext2D): void {
+  private renderPopups(ctx: CanvasRenderingContext2D, now: number): void {
     if (this.popups.length === 0) return
+    const LIFETIME = 3500 // ms — time-based, so throttled tabs don't strand popups
     ctx.font = '700 16px Inter, sans-serif'
     ctx.textAlign = 'center'
     for (let i = this.popups.length - 1; i >= 0; i--) {
       const p = this.popups[i]
-      p.y -= 0.7
-      p.life -= 0.012
-      if (p.life <= 0) { this.popups.splice(i, 1); continue }
-      ctx.globalAlpha = Math.max(0, p.life)
+      const age = now - p.bornAt
+      if (age >= LIFETIME) { this.popups.splice(i, 1); continue }
+      ctx.globalAlpha = 1 - age / LIFETIME
       ctx.fillStyle = p.color
-      ctx.fillText(p.text, p.x, p.y)
+      ctx.fillText(p.text, p.x, p.y - age * 0.045)
     }
     ctx.globalAlpha = 1
     ctx.textAlign = 'left'
