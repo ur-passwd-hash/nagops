@@ -7,6 +7,7 @@ import { HeadlineRenderer } from './headline.ts'
 import { TypingIndicator } from './typing-indicator.ts'
 import { SprintCountdown } from './sprint-countdown.ts'
 import { ToastNotifications } from './toast-notifications.ts'
+import { Scoreboard } from './scoreboard.ts'
 import { ShootingStars } from './dumpster-fire.ts'
 import { CanvasRenderer } from './canvas-renderer.ts'
 import { Moon } from './moon.ts'
@@ -31,9 +32,9 @@ async function boot() {
   const vh = window.innerHeight
   const mobile = isMobile()
 
-  if (mobile) {
+  {
     const hint = document.querySelector('.hint-pill')
-    if (hint) hint.textContent = 'tap and drag'
+    if (hint) hint.textContent = mobile ? 'tap words to ship them' : 'move your mouse · click words to ship them'
   }
 
   const cursor = new Cursor()
@@ -66,6 +67,10 @@ async function boot() {
   })
   ufo.onExplosion((x, y) => {
     canvasRenderer.triggerExplosion(x, y)
+    // The UFO abducts the nearest unshipped keyword — its measured width
+    // comes straight off the scoreboard. Ship faster.
+    const stolen = canvasRenderer.stealNearestKeyword(x, y)
+    if (stolen) scoreboard.steal(Math.round(stolen.width))
   })
   ufo.onCollisionExplosion((x, y) => {
     canvasRenderer.triggerCollisionExplosion(x, y)
@@ -74,6 +79,7 @@ async function boot() {
   const typingIndicator = new TypingIndicator()
   const sprintCountdown = new SprintCountdown()
   const toastNotifications = new ToastNotifications()
+  const scoreboard = new Scoreboard()
 
   // When sprint countdown hits zero, launch UFO toward moon
   sprintCountdown.onZero(() => {
@@ -82,7 +88,16 @@ async function boot() {
     ufo.start(moon.centerX, moon.centerY)
   })
 
-  window.addEventListener('click', () => { cycleQuote() })
+  window.addEventListener('click', (e) => {
+    // Ship It: clicking a keyword ships it (worth its measured pixel width).
+    // Hit-testing is pure math against pretext measurements — no DOM reads.
+    const shipped = canvasRenderer.shipKeywordAt(e.clientX, e.clientY)
+    if (shipped) {
+      scoreboard.ship(Math.round(shipped.width))
+    } else {
+      cycleQuote()
+    }
+  })
 
   let currentVW = vw
   let currentVH = vh

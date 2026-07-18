@@ -163,6 +163,30 @@ html, body {
   pointer-events: none;
   user-select: none;
 }
+
+/* Ship It scoreboard — bottom-left mirror of the countdown.
+   Width is reserved via pretext measurement at boot: zero layout shift. */
+.ship-scoreboard {
+  position: fixed;
+  bottom: 24px;
+  left: 24px;
+  text-align: left;
+  z-index: 15;
+  pointer-events: none;
+  user-select: none;
+}
+.scoreboard-label {
+  font: 700 10px/1 'Inter', sans-serif;
+  color: #555;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+.scoreboard-score {
+  color: #8a94ab;
+  font-variant-numeric: tabular-nums;
+  transition: color 0.3s ease;
+}
 .countdown-label {
   font: 700 10px/1 'Inter', sans-serif;
   color: #555;
@@ -365,6 +389,13 @@ html, body {
   .sprint-countdown {
     bottom: 16px;
     right: 12px;
+  }
+  .ship-scoreboard {
+    bottom: 16px;
+    left: 12px;
+  }
+  .scoreboard-label {
+    font-size: 8px;
   }
   .countdown-label {
     font-size: 8px;

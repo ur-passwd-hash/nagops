@@ -69,6 +69,8 @@ export class CanvasRenderer {
   private asteroidLoaded = false
   private angle = 0
   private flash: { x: number; y: number; start: number } | null = null
+  private respawnQueue: { kw: PlacedKeyword; at: number }[] = []
+  private popups: { text: string; x: number; y: number; life: number; color: string }[] = []
 
   constructor(container: HTMLElement) {
     this.canvas = document.createElement('canvas')
@@ -94,6 +96,8 @@ export class CanvasRenderer {
 
   private placeKeywords(defs: KeywordDef[]): void {
     this.keywords = []
+    this.respawnQueue = []
+    this.popups = []
     // Shuffle
     const shuffled = [...defs].sort(() => Math.random() - 0.5)
 
@@ -208,6 +212,10 @@ export class CanvasRenderer {
     // 6. Draw keywords (heat from meteor trail only, not shooting stars)
     ctx.globalCompositeOperation = 'source-over'
     this.renderKeywords(ctx, trail)
+
+    // 7. Ship It: respawn shipped/stolen keywords, float score popups
+    this.processRespawns(_now)
+    this.renderPopups(ctx)
   }
 
   // ── Physics: repel keywords from trail + shooting stars ──
@@ -485,6 +493,101 @@ export class CanvasRenderer {
     if (this.keywords.length === 0) return null
     const kw = this.keywords[Math.floor(Math.random() * this.keywords.length)]
     return { x: kw.restX + kw.width / 2, y: kw.restY + kw.height / 2 }
+  }
+
+  /**
+   * Ship It: hit-test a click against keyword boxes; remove and score the hit.
+   * Pure arithmetic — every hitbox is pretext's one-time measured width/height
+   * plus the current physics position. No getBoundingClientRect, no
+   * elementFromPoint, no DOM reads at all. Returns the shipped keyword or null.
+   */
+  shipKeywordAt(px: number, py: number): { text: string; width: number } | null {
+    const PAD = 8
+    for (let i = this.keywords.length - 1; i >= 0; i--) {
+      const kw = this.keywords[i]
+      if (
+        px >= kw.x - PAD && px <= kw.x + kw.width + PAD &&
+        py >= kw.y - PAD && py <= kw.y + kw.height + PAD
+      ) {
+        this.keywords.splice(i, 1)
+        this.scheduleRespawn(kw)
+        this.shipBurst(kw.x + kw.width / 2, kw.y + kw.height / 2)
+        this.spawnPopup(`+${Math.round(kw.width)} px`, kw.x + kw.width / 2, kw.y - 6, '#3ce8b4')
+        return { text: kw.text, width: kw.width }
+      }
+    }
+    return null
+  }
+
+  /** UFO abduction: remove the keyword nearest the explosion point. */
+  stealNearestKeyword(cx: number, cy: number, radius = 240): { text: string; width: number } | null {
+    let best = -1
+    let bestDist = radius
+    for (let i = 0; i < this.keywords.length; i++) {
+      const kw = this.keywords[i]
+      const dx = kw.x + kw.width / 2 - cx
+      const dy = kw.y + kw.height / 2 - cy
+      const d = Math.sqrt(dx * dx + dy * dy)
+      if (d < bestDist) { bestDist = d; best = i }
+    }
+    if (best < 0) return null
+    const kw = this.keywords.splice(best, 1)[0]
+    this.scheduleRespawn(kw)
+    this.spawnPopup(`-${Math.round(kw.width)} px`, kw.x + kw.width / 2, kw.y - 6, '#ff4444')
+    return { text: kw.text, width: kw.width }
+  }
+
+  private scheduleRespawn(kw: PlacedKeyword): void {
+    this.respawnQueue.push({ kw, at: performance.now() + 40_000 + Math.random() * 20_000 })
+  }
+
+  private processRespawns(now: number): void {
+    for (let i = this.respawnQueue.length - 1; i >= 0; i--) {
+      if (now >= this.respawnQueue[i].at) {
+        const { kw } = this.respawnQueue.splice(i, 1)[0]
+        kw.x = kw.restX; kw.y = kw.restY; kw.vx = 0; kw.vy = 0
+        this.keywords.push(kw)
+      }
+    }
+  }
+
+  private shipBurst(cx: number, cy: number): void {
+    const SHIP_COLORS: [number, number, number][] = [
+      [60, 232, 180], [40, 220, 180], [120, 255, 210], [255, 255, 220],
+    ]
+    for (let i = 0; i < 26; i++) {
+      const angle = Math.random() * Math.PI * 2
+      const speed = 1 + Math.random() * 4
+      this.embers.push({
+        x: cx, y: cy,
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed - 1,
+        life: 1,
+        size: 1.5 + Math.random() * 4,
+        color: SHIP_COLORS[Math.floor(Math.random() * SHIP_COLORS.length)],
+      })
+    }
+  }
+
+  private spawnPopup(text: string, x: number, y: number, color: string): void {
+    this.popups.push({ text, x, y, life: 1, color })
+  }
+
+  private renderPopups(ctx: CanvasRenderingContext2D): void {
+    if (this.popups.length === 0) return
+    ctx.font = '700 14px Inter, sans-serif'
+    ctx.textAlign = 'center'
+    for (let i = this.popups.length - 1; i >= 0; i--) {
+      const p = this.popups[i]
+      p.y -= 0.7
+      p.life -= 0.016
+      if (p.life <= 0) { this.popups.splice(i, 1); continue }
+      ctx.globalAlpha = Math.max(0, p.life)
+      ctx.fillStyle = p.color
+      ctx.fillText(p.text, p.x, p.y)
+    }
+    ctx.globalAlpha = 1
+    ctx.textAlign = 'left'
   }
 
   /** Apply a centrifugal burst from a point — used by moon click */
